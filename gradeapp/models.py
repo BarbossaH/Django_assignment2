@@ -44,9 +44,6 @@ class Class(models.Model):
 class Lecturer(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='lecturer_profile')
     staffId = models.CharField(max_length=32)
-    firstname = models.CharField(max_length=200)
-    lastname = models.CharField(max_length=200)
-    email = models.EmailField(max_length=100)
     course = models.ForeignKey(Course,on_delete=models.SET_NULL, null=True)
     DOB = models.DateField(default=None)
 
