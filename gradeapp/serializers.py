@@ -46,6 +46,7 @@ class LecturerSerializer(serializers.ModelSerializer):
         fields = ['id','first_name','last_name', 'staffId', 'email', 'DOB']
 
 class SemesterSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Semester
         fields = "__all__"

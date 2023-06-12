@@ -66,17 +66,9 @@ def createLecturer(request):
 
 @api_view(['POST'])
 def createSemester(request):
-    # data = JSONParser().parse(request)
-    user_data = request.data.pop('user')
-    # print(user_data)
-    user = User.objects.create(**user_data)
-    token = Token.objects.create(user=user)
-    lecturer_group = Group.objects.get(name='Lecturer') 
-    # print(lecturer_group)
-    user.groups.add(lecturer_group)
-    serializer = LecturerSerializer(data=semester, many=False)
-    semester = SemesterSerializer.objects.create(user=user, **request.data)
+    serializer = SemesterSerializer(data=request.data, many=False)
     if serializer.is_valid():
-        serializer.save()
+        # serializer.save()
+        semester = Semester.objects.create(**request.data)
         return Response(serializer.data)
     return Response(serializer.errors)
