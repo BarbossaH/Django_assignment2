@@ -11,9 +11,11 @@ router = DefaultRouter()
 router.register("users", UserViewSet)
 router.register("students", viewsets.StudentViewSet)
 router.register("lecturers", viewsets.LecturerViewSet)
+router.register("semester", viewsets.SemesterViewSet)
 
 urlpatterns = [  
     path('addstudent/',views.createStudent),
     path('addlecturer/',views.createLecturer),
+    path('addsemester/',views.createSemester),
     path("", include(router.urls))
 ]

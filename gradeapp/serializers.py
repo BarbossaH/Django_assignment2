@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from gradeapp.models import Student, Lecturer
+from gradeapp.models import Student, Lecturer,Semester
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -7,8 +7,8 @@ class UserSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
     class Meta:
         model = User
-        # fields = ['id', 'username', 'password', 'token']
-        fields = "__all__"
+        fields = ['id', 'username', 'password', 'token']
+        # fields = "__all__"
 
         extra_kwargs = {'password':{
             'write_only': True,
@@ -44,4 +44,9 @@ class LecturerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecturer
         fields = ['id','first_name','last_name', 'staffId', 'email', 'DOB']
+
+class SemesterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Semester
+        fields = "__all__"
     

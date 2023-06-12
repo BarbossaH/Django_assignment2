@@ -9,10 +9,9 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-
 # from gradeapp.models import Post
-from gradeapp.serializers import StudentSerializer, LecturerSerializer
-from gradeapp.models import Student, Lecturer
+from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer
+from gradeapp.models import Student, Lecturer,Semester
 
 @api_view(['GET'])
 def index(request):
@@ -31,24 +30,22 @@ def getStudentDetail(request, id):
 
 @api_view(['POST'])
 def createStudent(request):
-    # data = JSONParser().parse(request)
     user_data = request.data.pop('user')
-    print(user_data)
     user = User.objects.create(**user_data)
+    print(user,"This is user")
     token = Token.objects.create(user=user)
     student_group = Group.objects.get(name='Student') 
-    print(student_group)
     user.groups.add(student_group)
+    serializer = StudentSerializer(data=request.data, many=False)
     student = Student.objects.create(user=user, **request.data)
-    serializer = StudentSerializer(student, many=False)
-    return Response(serializer.data)
-    # serializer = StudentSerializer(data=request.data)
-    # if serializer.is_valid():
-    #     serializer.save()
-    #     return Response(serializer.data)
-    # return Response(serializer.errors)
-
-
+    if(serializer.is_valid()):
+        # serializer.save()
+        return Response(serializer.data)
+    else:
+        user.delete()  # 如果保存失败，删除已创建的用户对象
+        student.delete()  # 如果保存失败，删除已创建的学生对象
+        return Response(serializer.errors)
+ 
 @api_view(['POST'])
 def createLecturer(request):
     # data = JSONParser().parse(request)
@@ -59,11 +56,27 @@ def createLecturer(request):
     lecturer_group = Group.objects.get(name='Lecturer') 
     # print(lecturer_group)
     user.groups.add(lecturer_group)
-    lecturer = Lecturer.objects.create(user=user, **request.data)
-    serializer = LecturerSerializer(lecturer, many=False)
-    return Response(serializer.data)
-    # serializer = StudentSerializer(data=request.data)
-    # if serializer.is_valid():
-    #     serializer.save()
-    #     return Response(serializer.data)
-    # return Response(serializer.errors)
+    serializer = LecturerSerializer(data=request.data, many=False)
+    if serializer.is_valid():
+        # serializer.save()
+        lecturer = Lecturer.objects.create(user=user, **request.data)
+
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+@api_view(['POST'])
+def createSemester(request):
+    # data = JSONParser().parse(request)
+    user_data = request.data.pop('user')
+    # print(user_data)
+    user = User.objects.create(**user_data)
+    token = Token.objects.create(user=user)
+    lecturer_group = Group.objects.get(name='Lecturer') 
+    # print(lecturer_group)
+    user.groups.add(lecturer_group)
+    serializer = LecturerSerializer(data=semester, many=False)
+    semester = SemesterSerializer.objects.create(user=user, **request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors)
