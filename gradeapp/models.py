@@ -57,7 +57,7 @@ class Lecturer(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='student_profile')
     studentId = models.CharField(max_length=10)
-    email = models.EmailField(max_length=100)
+    # email = models.EmailField(max_length=100)
     DOB = models.DateField(default=None)
     def __str__(self):
         return f"{self.studentId}-{self.user.first_name} {self.user.last_name}"
