@@ -6,12 +6,14 @@ from gradeapp import views
 from gradeapp.viewsets import  UserViewSet
 
 # from blog.viewsets import PostList, PostDetail
-from gradeapp.viewsets import StudentViewSet
+from gradeapp import viewsets
 router = DefaultRouter()
 router.register("users", UserViewSet)
-router.register("students", StudentViewSet)
+router.register("students", viewsets.StudentViewSet)
+router.register("lecturers", viewsets.LecturerViewSet)
 
 urlpatterns = [  
     path('addstudent/',views.createStudent),
+    path('addlecturer/',views.createLecturer),
     path("", include(router.urls))
 ]

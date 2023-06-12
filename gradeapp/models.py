@@ -48,7 +48,7 @@ class Lecturer(models.Model):
     DOB = models.DateField(default=None)
 
     def __str__(self):
-      return f"Lecturer:{self.firstname}  {self.lastname}"
+      return f"Lecturer:{self.user.first_name}  {self.user.last_name}"
 
 #model - 7 Student
 class Student(models.Model):

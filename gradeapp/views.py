@@ -11,8 +11,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 # from gradeapp.models import Post
-from gradeapp.serializers import StudentSerializer
-from gradeapp.models import Student
+from gradeapp.serializers import StudentSerializer, LecturerSerializer
+from gradeapp.models import Student, Lecturer
 
 @api_view(['GET'])
 def index(request):
@@ -48,17 +48,22 @@ def createStudent(request):
     #     return Response(serializer.data)
     # return Response(serializer.errors)
 
-@api_view(['PUT'])
-def updateStudent(request, id):
-    student = Student.objects.get(id=id)
-    serializer = StudentSerializer(instance=student, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors)
 
-@api_view(['DELETE'])
-def deleteStudent(request, id):
-    student = Student.objects.get(id=id)
-    student.delete()
-    return Response("Deleted")
+@api_view(['POST'])
+def createLecturer(request):
+    # data = JSONParser().parse(request)
+    user_data = request.data.pop('user')
+    # print(user_data)
+    user = User.objects.create(**user_data)
+    token = Token.objects.create(user=user)
+    lecturer_group = Group.objects.get(name='Lecturer') 
+    # print(lecturer_group)
+    user.groups.add(lecturer_group)
+    lecturer = Lecturer.objects.create(user=user, **request.data)
+    serializer = LecturerSerializer(lecturer, many=False)
+    return Response(serializer.data)
+    # serializer = StudentSerializer(data=request.data)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return Response(serializer.data)
+    # return Response(serializer.errors)
