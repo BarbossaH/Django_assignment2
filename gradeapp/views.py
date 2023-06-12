@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 # from gradeapp.models import Post
-from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer
-from gradeapp.models import Student, Lecturer,Semester
+from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer,CourseSerializer,ClassSerializer,StudentEnrollmentSerializer
+from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrollment
 
 @api_view(['GET'])
 def index(request):
@@ -70,5 +70,29 @@ def createSemester(request):
     if serializer.is_valid():
         # serializer.save()
         semester = Semester.objects.create(**request.data)
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+@api_view(['POST'])
+def createCourse(request):
+    serializer = CourseSerializer(data=request.data, many=False)
+    if serializer.is_valid():
+        course = Course.objects.create(**request.data)
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+@api_view(['POST'])
+def createClass(request):
+    serializer = ClassSerializer(data=request.data, many=False)
+    if serializer.is_valid():
+        class_ = Class.objects.create(**request.data)
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+@api_view(['POST'])
+def createStudentEnrollment(request):
+    serializer = StudentEnrollmentSerializer(data=request.data, many=False)
+    if serializer.is_valid():
+        student_enrollment = StudentEnrollment.objects.create(**request.data)
         return Response(serializer.data)
     return Response(serializer.errors)
