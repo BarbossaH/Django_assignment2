@@ -8,7 +8,7 @@ from gradeapp.viewsets import  UserViewSet
 # from blog.viewsets import PostList, PostDetail
 from gradeapp import viewsets
 router = DefaultRouter()
-router.register("users", UserViewSet)
+router.register("users", viewsets.UserViewSet)
 router.register("students", viewsets.StudentViewSet)
 router.register("lecturers", viewsets.LecturerViewSet)
 router.register("semester", viewsets.SemesterViewSet)
@@ -23,5 +23,6 @@ urlpatterns = [
     path('addcourse/',views.createCourse),
     path('addclass/',views.createClass),
     path('addstudentenrollment/',views.createStudentEnrollment),
+    path('upload/',views.uploadExcel),
     path("", include(router.urls))
 ]

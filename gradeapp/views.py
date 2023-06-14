@@ -6,17 +6,18 @@ from rest_framework.authtoken.models import Token
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, authentication_classes,permission_classes
+# from gradeapp.permissions import IsAuthorOrReadOnly
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 # from gradeapp.models import Post
 from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer,CourseSerializer,ClassSerializer,StudentEnrollmentSerializer
 from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrollment
+from django.shortcuts import redirect
 
 @api_view(['GET'])
 def index(request):
     # if request.user.is_authenticated:
-    print(1232321321)
     students = Student.objects.all()
     serializer = StudentSerializer(students, many=True)
     return HttpResponse(serializer.data)
@@ -29,6 +30,7 @@ def getStudentDetail(request, id):
     return Response(serializer.data)
 
 @api_view(['POST'])
+# @permission_classes([IsAuthorOrReadOnly])
 def createStudent(request):
     user_data = request.data.pop('user')
     user = User.objects.create(**user_data)
@@ -50,7 +52,7 @@ def createStudent(request):
 def createLecturer(request):
     # data = JSONParser().parse(request)
     user_data = request.data.pop('user')
-    # print(user_data)
+    print(**user_data)
     user = User.objects.create(**user_data)
     token = Token.objects.create(user=user)
     lecturer_group = Group.objects.get(name='Lecturer') 
@@ -96,3 +98,61 @@ def createStudentEnrollment(request):
         student_enrollment = StudentEnrollment.objects.create(**request.data)
         return Response(serializer.data)
     return Response(serializer.errors)
+
+
+from openpyxl import load_workbook
+@api_view(['POST'])
+def uploadExcel(request):
+    print(request, 12323213213 )
+    if request.method == 'POST' and request.FILES.get('file'):
+        file = request.FILES.get('file')
+        wb = load_workbook(file)
+        sheet = wb.worksheets[0]
+        data = list(sheet.values)
+        print(data)
+
+
+        headers = data[0]
+        for row in data[1:]:
+            student= Student()
+            is_row_invalid=False
+        #     #to judge this row exists or not
+            for col_idx, col_value in enumerate(row):
+                if headers[col_idx]=="username" :
+                    print(User.objects.filter(username=col_value).exists(),88888)
+        #             # print(col_value,"doaisjdsaodjsaodij")
+                    if col_value==None or User.objects.filter(username=col_value).exists():
+                        is_row_invalid=True
+                        break
+        #     # print(is_row_exist,"1111111")
+                    userData={}
+                    studentData={}
+                    if(not is_row_invalid):
+                        for col_idx, col_value in enumerate(row):
+                            if headers[col_idx]=="username":
+                                userData["username"] = col_value
+                                # print(username, 1999)
+                            if headers[col_idx]=="email":
+                                userData["email"] =col_value
+                                # print(email, 2999)
+                            if headers[col_idx]=="first_name":
+                                userData['first_name'] = col_value
+                                # print(first_name, 3999)
+                            if headers[col_idx]=="last_name":
+                                userData['last_name'] = col_value
+                            if headers[col_idx]=="DOB":
+                                studentData['DOB'] = col_value
+                            if headers[col_idx]=="studentId":
+                                studentData['studentId'] = col_value
+                                # print(last_name, 4999)
+                        print(userData, 7999)
+                        user=User.objects.create(**userData)
+                        # user=User.objects.create(username=username,password=("000000"),email=email,first_name=first_name,last_name=last_name)
+                        token = Token.objects.create(user=user)
+                        student_group = Group.objects.get(name='Student') 
+                        user.groups.add(student_group)
+                        serializer = StudentSerializer(data=studentData, many=False)
+                        if serializer.is_valid():
+                            student = Student.objects.create(user=user, **studentData)
+    return Response("success")
+    

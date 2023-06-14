@@ -3,14 +3,14 @@ from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrol
 from rest_framework import viewsets, mixins
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
+from gradeapp.permissions import IsAuthorOrReadOnly
 
-# from gradeapp.permissions import IsAuthorOrReadOnly
 from gradeapp.serializers import  UserSerializer, StudentSerializer, LecturerSerializer,SemesterSerializer,CourseSerializer,ClassSerializer,StudentEnrollmentSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthorOrReadOnly,IsAuthenticated]
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
