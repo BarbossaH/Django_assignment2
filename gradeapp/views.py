@@ -7,13 +7,13 @@ from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes,permission_classes
-# from gradeapp.permissions import IsAuthorOrReadOnly
-from rest_framework.parsers import JSONParser
+from gradeapp.permissions import IsAuthorOrReadOnly
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 # from gradeapp.models import Post
 from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer,CourseSerializer,ClassSerializer,StudentEnrollmentSerializer
 from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrollment
-from django.shortcuts import redirect
+
 
 @api_view(['GET'])
 def index(request):
@@ -30,7 +30,7 @@ def getStudentDetail(request, id):
     return Response(serializer.data)
 
 @api_view(['POST'])
-# @permission_classes([IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createStudent(request):
     user_data = request.data.pop('user')
     user = User.objects.create(**user_data)
@@ -49,10 +49,11 @@ def createStudent(request):
         return Response(serializer.errors)
  
 @api_view(['POST'])
+@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createLecturer(request):
     # data = JSONParser().parse(request)
     user_data = request.data.pop('user')
-    print(**user_data)
+    # print(user_data)
     user = User.objects.create(**user_data)
     token = Token.objects.create(user=user)
     lecturer_group = Group.objects.get(name='Lecturer') 
@@ -142,8 +143,8 @@ def uploadExcel(request):
                                 userData['last_name'] = col_value
                             if headers[col_idx]=="DOB":
                                 studentData['DOB'] = col_value
-                            if headers[col_idx]=="studentId":
-                                studentData['studentId'] = col_value
+                            if headers[col_idx]=="username":
+                                studentData['username'] = col_value
                                 # print(last_name, 4999)
                         print(userData, 7999)
                         user=User.objects.create(**userData)

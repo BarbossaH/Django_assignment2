@@ -43,7 +43,6 @@ class Class(models.Model):
 #model - 6 Lecturer
 class Lecturer(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='lecturer_profile')
-    staffId = models.CharField(max_length=32)
     course = models.ForeignKey(Course,on_delete=models.SET_NULL, null=True)
     DOB = models.DateField(default=None)
 
@@ -53,11 +52,10 @@ class Lecturer(models.Model):
 #model - 7 Student
 class Student(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='student_profile')
-    studentId = models.CharField(max_length=10)
     # email = models.EmailField(max_length=100)
     DOB = models.DateField(default=None)
     def __str__(self):
-        return f"{self.studentId}-{self.user.first_name} {self.user.last_name}"
+        return f"{self.id}-{self.user.first_name} {self.user.last_name}"
     
 
 #model - 8 StudentEnrollment
@@ -68,7 +66,7 @@ class StudentEnrollment(models.Model):
     enrollTime = models.DateField(auto_now_add=True)
     gradeTime = models.DateField(null=True, blank=True)
     #grade
-    mark = models.IntegerField(default=0,null=True,blank=True)
+    mark = models.CharField(max_length=8)
 
     def __str__(self):
       return self.mark

@@ -32,18 +32,19 @@ class StudentSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', read_only=True)
     last_name = serializers.CharField(source='user.last_name', read_only=True)
     email = serializers.CharField(source = 'user.email',read_only=True)
+    username = serializers.CharField(source = 'user.username',read_only=True)
     class Meta:
         model = Student
-        fields = ['id', 'first_name','last_name', 'studentId', 'email', 'DOB']
+        fields = ['id', 'username','first_name','last_name',  'email', 'DOB']
 
 class LecturerSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', read_only=True)
     last_name = serializers.CharField(source='user.last_name', read_only=True)
     email = serializers.CharField(source = 'user.email',read_only=True)
-    
+    username = serializers.CharField(source = 'user.username',read_only=True)
     class Meta:
         model = Lecturer
-        fields = ['id','first_name','last_name', 'staffId', 'email', 'DOB']
+        fields = ['id','username','first_name','last_name',  'email', 'DOB']
 
 class SemesterSerializer(serializers.ModelSerializer):
 
