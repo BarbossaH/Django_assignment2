@@ -47,6 +47,12 @@ def createStudent(request):
         user.delete()  # 如果保存失败，删除已创建的用户对象
         student.delete()  # 如果保存失败，删除已创建的学生对象
         return Response(serializer.errors)
+
+@api_view(['PUT'])
+# @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+def updateStudent(request,id):
+    print(request.data, id,1232321321)
+    return Response("ok")
  
 @api_view(['POST'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
@@ -75,6 +81,7 @@ def createSemester(request):
         semester = Semester.objects.create(**request.data)
         return Response(serializer.data)
     return Response(serializer.errors)
+
 
 @api_view(['POST'])
 def createCourse(request):
@@ -111,8 +118,6 @@ def uploadExcel(request):
         sheet = wb.worksheets[0]
         data = list(sheet.values)
         print(data)
-
-
         headers = data[0]
         for row in data[1:]:
             student= Student()

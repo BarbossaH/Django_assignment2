@@ -18,6 +18,7 @@ router.register("studentenrollment", viewsets.StudentEnrollmentViewSet)
 
 urlpatterns = [  
     path('addstudent/',views.createStudent),
+    path('students/<int:id>/edit/',views.updateStudent),
     path('addlecturer/',views.createLecturer),
     path('addsemester/',views.createSemester),
     path('addcourse/',views.createCourse),
