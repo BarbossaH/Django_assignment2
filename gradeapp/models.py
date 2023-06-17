@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 
 
-#model - 3 Semester
+#model - 1 Semester
 
 class Semester(models.Model):
       semester_choices = (   
@@ -17,7 +17,7 @@ class Semester(models.Model):
       def __str__(self):
         return f"{self.year}-{'Spring' if self.semester == 1 else 'Fall'}"
     
-#model - 4 Course
+#model - 2 Course
 
 class Course(models.Model):
     id = models.AutoField(primary_key=True)
@@ -28,7 +28,7 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
 
-#model - 5 Class
+#model - 3 Class
 class Class(models.Model):
     number = models.IntegerField(default=1)
     id = models.AutoField(primary_key=True)
@@ -40,7 +40,7 @@ class Class(models.Model):
       return f"{self.number}-{self.id}-{self.semester}-{self.course}-{self.lecturer}"
     
 
-#model - 6 Lecturer
+#model - 4 Lecturer
 class Lecturer(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='lecturer_profile')
     course = models.ForeignKey(Course,on_delete=models.SET_NULL, null=True)
@@ -49,7 +49,7 @@ class Lecturer(models.Model):
     def __str__(self):
       return f"Lecturer:{self.user.first_name}  {self.user.last_name}"
 
-#model - 7 Student
+#model - 5 Student
 class Student(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='student_profile')
     # email = models.EmailField(max_length=100)
@@ -58,7 +58,7 @@ class Student(models.Model):
         return f"{self.id}-{self.user.first_name} {self.user.last_name}"
     
 
-#model - 8 StudentEnrollment
+#model - 6 StudentEnrollment
 
 class StudentEnrollment(models.Model):
     enrolled_class = models.ForeignKey(Class, on_delete=models.CASCADE)
