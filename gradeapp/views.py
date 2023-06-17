@@ -51,13 +51,25 @@ def createStudent(request):
 @api_view(['PUT'])
 # @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def updateStudent(request,id):
-    print(request.data, id,1232321321)
-    return Response("ok")
+    print(request.data, 1232321321)
+    filtered_data = {key: value for key, value in request.data.items() if key != 'DOB'}
+    print(filtered_data)
+    serializer = StudentSerializer(data=filtered_data, many=False)
+    if serializer.is_valid():
+        # serializer.save()
+        student = Student.objects.get(id=id)
+        student.user.first_name = request.data['first_name']
+        student.user.last_name = request.data['last_name']
+        student.user.email = request.data['email']
+        student.user.save()
+        student.DOB = request.data['DOB']
+        student.save()
+        return Response(serializer.data)
+    return Response(serializer.errors)
  
 @api_view(['POST'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createLecturer(request):
-    # data = JSONParser().parse(request)
     user_data = request.data.pop('user')
     # print(user_data)
     user = User.objects.create(**user_data)
