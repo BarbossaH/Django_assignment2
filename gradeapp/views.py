@@ -10,6 +10,7 @@ from rest_framework.decorators import api_view, authentication_classes,permissio
 from gradeapp.permissions import IsAuthorOrReadOnly
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
+from rest_framework import status
 # from gradeapp.models import Post
 from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterSerializer,CourseSerializer,ClassSerializer,StudentEnrollmentSerializer
 from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrollment
@@ -32,17 +33,23 @@ def getStudentDetail(request, id):
 @api_view(['POST'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createStudent(request):
-    user_data = request.data.pop('user')
-    user = User.objects.create(**user_data)
+    print(request.data,99999999)
+    data = request.data
+    DOB = data.pop('DOB')
+    username = data.get('username', None)
+    if username and User.objects.filter(username=username).exists():
+        error_message = "Username already exists."
+        return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+    user = User.objects.create(**data)
     print(user,"This is user")
     token = Token.objects.create(user=user)
     student_group = Group.objects.get(name='Student') 
     user.groups.add(student_group)
+    student = Student.objects.create(user=user, DOB=DOB)
     serializer = StudentSerializer(data=request.data, many=False)
-    student = Student.objects.create(user=user, **request.data)
     if(serializer.is_valid()):
         # serializer.save()
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         user.delete()  # 如果保存失败，删除已创建的用户对象
         student.delete()  # 如果保存失败，删除已创建的学生对象
@@ -51,7 +58,7 @@ def createStudent(request):
 @api_view(['PUT'])
 # @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def updateStudent(request,id):
-    print(request.data, 1232321321)
+    # print(request.data, 1232321321)
     filtered_data = {key: value for key, value in request.data.items() if key != 'DOB'}
     print(filtered_data)
     serializer = StudentSerializer(data=filtered_data, many=False)
