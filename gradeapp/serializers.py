@@ -42,12 +42,15 @@ class LecturerSerializer(serializers.ModelSerializer):
     last_name = serializers.CharField(source='user.last_name', read_only=True)
     email = serializers.CharField(source = 'user.email',read_only=True)
     username = serializers.CharField(source = 'user.username',read_only=True)
+    course = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = Lecturer
-        fields = ['id','username','first_name','last_name',  'email', 'DOB']
+        fields = ['id','username','first_name','last_name', 'course', 'email', 'DOB']
 
 class SemesterSerializer(serializers.ModelSerializer):
 
+    def get_semester(self, obj):
+        return "Spring" if obj.semester == 1 else "Fall"
     class Meta:
         model = Semester
         fields = "__all__"

@@ -26,7 +26,7 @@ class Course(models.Model):
     semesters = models.ManyToManyField(Semester,  blank=True)
 
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return f"{self.name} - {self.id}"
 
 #model - 3 Class
 class Class(models.Model):

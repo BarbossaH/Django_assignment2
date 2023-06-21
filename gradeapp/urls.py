@@ -20,10 +20,15 @@ urlpatterns = [
     path('addstudent/',views.createStudent),
     path('students/<int:id>/edit/',views.updateStudent),
     path('addlecturer/',views.createLecturer),
+    path('lecturers/<int:id>/edit/',views.updateLecturer),
     path('addsemester/',views.createSemester),
+    path('semester/<int:id>/edit/',views.updateSemester),
     path('addcourse/',views.createCourse),
+    path('course/<int:id>/edit/',views.updateCourse),
     path('addclass/',views.createClass),
+    path('classes/<int:id>/edit/',views.updateClass),
     path('addstudentenrollment/',views.createStudentEnrollment),
+    path('studentenrollments/<int:id>/edit/',views.updateStudentEnrollment),
     path('upload/',views.uploadExcel),
     path("", include(router.urls))
 ]
