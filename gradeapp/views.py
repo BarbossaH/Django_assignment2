@@ -7,8 +7,8 @@ from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes,permission_classes
-from gradeapp.permissions import IsAuthorOrReadOnly
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from gradeapp.permissions import IsAuthorOrReadOnly,IsLecturer,IsStudent
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 # from gradeapp.models import Post
@@ -16,20 +16,8 @@ from gradeapp.serializers import StudentSerializer, LecturerSerializer,SemesterS
 from gradeapp.models import Student, Lecturer,Semester,Course,Class,StudentEnrollment
 
 
-@api_view(['GET'])
-def index(request):
-    # if request.user.is_authenticated:
-    students = Student.objects.all()
-    serializer = StudentSerializer(students, many=True)
-    return HttpResponse(serializer.data)
-    # return HttpResponse("Hello n11obody")
 
-@api_view(['GET'])
-def getStudentDetail(request, id):
-    student = Student.objects.get(id=id)
-    serializer = StudentSerializer(student, many=False)
-    return Response(serializer.data)
-
+#create student
 @api_view(['POST'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createStudent(request):
@@ -55,6 +43,7 @@ def createStudent(request):
         student.delete()  # 如果保存失败，删除已创建的学生对象
         return Response(serializer.errors)
 
+#update student
 @api_view(['PUT'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def updateStudent(request,id):
@@ -74,25 +63,10 @@ def updateStudent(request,id):
         return Response(serializer.data)
     return Response(serializer.errors)
  
-@api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
-def updateLecturer(request,id):
-    filtered_data = {key: value for key, value in request.data.items() if key != 'DOB'}
-    print(filtered_data)
-    serializer = LecturerSerializer(data=filtered_data, many=False)
-    if serializer.is_valid():
-        lecturer = Lecturer.objects.get(id=id)
-        lecturer.user.first_name = request.data['first_name']
-        lecturer.user.last_name = request.data['last_name']
-        lecturer.user.email = request.data['email']
-        lecturer.user.save()
-        lecturer.DOB = request.data['DOB']
-        lecturer.course = Course.objects.get(id=request.data['course'])
-        lecturer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors)
 
 
+
+#create lecturer
 @api_view(['POST'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def createLecturer(request):
@@ -122,8 +96,28 @@ def createLecturer(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
-@api_view(['POST'])
+#update lecturer 
+@api_view(['PUT'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+def updateLecturer(request,id):
+    filtered_data = {key: value for key, value in request.data.items() if key != 'DOB'}
+    print(filtered_data)
+    serializer = LecturerSerializer(data=filtered_data, many=False)
+    if serializer.is_valid():
+        lecturer = Lecturer.objects.get(id=id)
+        lecturer.user.first_name = request.data['first_name']
+        lecturer.user.last_name = request.data['last_name']
+        lecturer.user.email = request.data['email']
+        lecturer.user.save()
+        lecturer.DOB = request.data['DOB']
+        lecturer.course = Course.objects.get(id=request.data['course'])
+        lecturer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors)
+
+#create semester
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
 def createSemester(request):
     serializer = SemesterSerializer(data=request.data, many=False)
     if serializer.is_valid():
@@ -132,8 +126,9 @@ def createSemester(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+#update semester
 @api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def updateSemester(request,id):
     serializer = SemesterSerializer(data=request.data, many=False)
     if serializer.is_valid():
@@ -144,6 +139,7 @@ def updateSemester(request,id):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+#create course
 @api_view(['POST'])
 def createCourse(request):
     serializer = CourseSerializer(data=request.data, many=False)
@@ -152,6 +148,7 @@ def createCourse(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+#update course
 @api_view(['PUT'])
 @permission_classes([IsAdminUser,IsAuthorOrReadOnly])
 def updateCourse(request,id):
@@ -165,7 +162,7 @@ def updateCourse(request,id):
         return Response(serializer.data)
     return Response(serializer.errors)
 
-
+#delete course
 @api_view(['POST'])
 def createClass(request):
     serializer = ClassSerializer(data=request.data, many=False)
@@ -174,8 +171,9 @@ def createClass(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+#update class
 @api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def updateClass(request,id):
     serializer= ClassSerializer(data=request.data, many=False)
     if serializer.is_valid():
@@ -187,7 +185,7 @@ def updateClass(request,id):
         return Response(serializer.data)
 
 
-
+#create enrollment
 @api_view(['POST'])
 def createStudentEnrollment(request):
     serializer = StudentEnrollmentSerializer(data=request.data, many=False)
@@ -196,19 +194,55 @@ def createStudentEnrollment(request):
         return Response(serializer.data)
     return Response(serializer.errors)
 
+#update enrollment
 @api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def updateStudentEnrollment(request,id):
     serializer= StudentEnrollmentSerializer(data=request.data, many=False)
     if serializer.is_valid():
         enrollment= StudentEnrollment.objects.get(id=id)
-        enrollment.enrolled_class = Student.objects.get(id=request.data['enrolled_class'])
-        enrollment.enrolled_student = Class.objects.get(id=request.data['enrolled_student'])
+        enrollment.enrolled_student = Student.objects.get(id=request.data['enrolled_student'])
+        enrollment.enrolled_class= Class.objects.get(id=request.data['enrolled_class'])
         enrollment.enrollTime = request.data['enrollTime']
         enrollment.gradeTime= request.data['gradeTime']
+        enrollment.mark = request.data['mark']
         enrollment.save()
         return Response(serializer.data)
 
+#lecturer and admin can change all students's marks
+@api_view(['POST'])
+@permission_classes([IsLecturer | IsAdminUser])
+def enter_student_marks(request):
+    """endpoint for entering student marks"""
+
+    enrolment_id = request.data.get('enrolment_id')
+    grade = request.data.get('grade')
+
+    try:
+        enrolment = StudentEnrollment.objects.get(id=enrolment_id)
+        enrolment.grade = grade
+        enrolment.save()
+        serializer = StudentEnrollmentSerializer(enrolment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except StudentEnrollment.DoesNotExist:
+        return Response({'error': 'Enrolment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+#student can only view his/her own marks
+@api_view(['GET'])
+@permission_classes([IsLecturer | IsStudent | IsAdminUser])
+def view_student_marks(request, student_id):
+    """endpoint for student to view his/her own marks"""
+    if request.user.groups.filter(name="student").exists() and student_id != request.user.student_profile.id:
+        return Response({'error': 'You are not authorized to view marks for this student.'},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    enrolments = StudentEnrollment.objects.filter(enrolled_student_id=student_id)
+    serializer = StudentEnrollmentSerializer(enrolments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+#upload excel file and save to database
 from openpyxl import load_workbook
 @api_view(['POST'])
 def uploadExcel(request):
@@ -263,3 +297,27 @@ def uploadExcel(request):
                             student = Student.objects.create(user=user, **studentData)
     return Response("success")
     
+    #send email
+from django.core.mail import send_mail
+from django.contrib import messages
+
+def send_email(req, id):
+    studentEnroll = StudentEnrollment.objects.filter(id=id).first()
+    
+    if not studentEnroll:
+        messages.error("there is no this student")
+        return HttpResponse("there is no this student")
+    student_email = studentEnroll.enrolled_student.email
+    subject = "Your Grade is Available"
+    message = f"Dear {studentEnroll.enrolled_student},\n\nYour grade for {studentEnroll.mark} is now available. "
+    from_email = None  # Uses the default email in settings.py
+
+    try:
+        send_mail(subject, message, from_email, [student_email])
+        messages.success(req, f"Email sent to {studentEnroll}.")
+    except Exception as e:
+        messages.error(req, str(e))
+    
+    return HttpResponse("Email has sent")
+
+

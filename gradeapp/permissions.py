@@ -9,23 +9,23 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
             return True        
         return False
     
-# class IsLecturer(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return request.user.groups.filter(name="Lecturer").exists()
+class IsLecturer(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.groups.filter(name="Lecturer").exists()
 
-#     def has_object_permission(self, request, view, obj):
-#         if request.method == 'PATCH':
-#             if set(request.data.keys()) <= {'grade'}:
-#                 return True
-#         return False
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'PATCH':
+            if set(request.data.keys()) <= {'mark'}:
+                return True
+        return False
 
 
-# class IsStudent(permissions.BasePermission):
-#     def has_permission(self, request, view):
-#         return request.user.groups.filter(name="Student").exists()
+class IsStudent(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.groups.filter(name="Student").exists()
 
-#     def has_object_permission(self, request, view, obj):
-#         if request.method == 'GET':
-#             return obj.enrolled_student.user == request.user
+    def has_object_permission(self, request, view, obj):
+        if request.method == 'GET':
+            return obj.enrolled_student.user == request.user
 
-#         return False
+        return False
