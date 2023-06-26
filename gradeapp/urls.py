@@ -30,6 +30,6 @@ urlpatterns = [
     path('addstudentenrollment/',views.createStudentEnrollment),
     path('studentenrollment/<int:id>/edit/',views.updateStudentEnrollment),
     path('upload/',views.uploadExcel),
-    path('sendemail/',views.send_email),
+    path('sendemail/<int:id>/',views.send_email),
     path("", include(router.urls))
 ]

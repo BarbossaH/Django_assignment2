@@ -300,24 +300,28 @@ def uploadExcel(request):
     #send email
 from django.core.mail import send_mail
 from django.contrib import messages
-
-def send_email(req, id):
+@api_view(['GET'])
+def send_email(request, id):
     studentEnroll = StudentEnrollment.objects.filter(id=id).first()
     
     if not studentEnroll:
         messages.error("there is no this student")
         return HttpResponse("there is no this student")
-    student_email = studentEnroll.enrolled_student.email
+    studentEmail = studentEnroll.enrolled_student.user.email
+
+    print(studentEmail,000000000)
+
     subject = "Your Grade is Available"
     message = f"Dear {studentEnroll.enrolled_student},\n\nYour grade for {studentEnroll.mark} is now available. "
     from_email = None  # Uses the default email in settings.py
 
     try:
-        send_mail(subject, message, from_email, [student_email])
-        messages.success(req, f"Email sent to {studentEnroll}.")
+        send_mail(subject, message, from_email, ['huangb19@myunitec.ac.nz'])
+        # send_mail(subject, message, from_email, [studentEmail])
+        messages.success(request, f"Email sent to {studentEnroll}.")
     except Exception as e:
-        messages.error(req, str(e))
-    
+        messages.error(request, str(e))
+    print('dsadsadsa')
     return HttpResponse("Email has sent")
 
 
