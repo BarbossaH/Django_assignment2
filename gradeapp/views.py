@@ -68,7 +68,7 @@ def updateStudent(request,id):
 
 #create lecturer
 @api_view(['POST'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def createLecturer(request):
     data = request.data
     DOB = data.pop('DOB')
@@ -98,7 +98,7 @@ def createLecturer(request):
 
 #update lecturer 
 @api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def updateLecturer(request,id):
     filtered_data = {key: value for key, value in request.data.items() if key != 'DOB'}
     print(filtered_data)
@@ -134,7 +134,7 @@ def updateSemester(request,id):
     if serializer.is_valid():
         semester = Semester.objects.get(id=id)
         semester.year = request.data['year']
-        semester.semester = request.data['semester']
+        semester.semester = request.data['semesters']
         semester.save()
         return Response(serializer.data)
     return Response(serializer.errors)
@@ -142,24 +142,36 @@ def updateSemester(request,id):
 #create course
 @api_view(['POST'])
 def createCourse(request):
+    semester = Semester.objects.get(id=request.data['semesters'])
+    # data = request.data.pop('semester')
+    if not semester:
+        error_message = "Semester does not exist."
+        return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+    
+    course = Course.objects.create(code=request.data['code'], name=request.data['name'])
+    course.semesters.set([semester])
+   
     serializer = CourseSerializer(data=request.data, many=False)
     if serializer.is_valid():
-        course = Course.objects.create(**request.data)
+        print(1190909090)
         return Response(serializer.data)
     return Response(serializer.errors)
 
 #update course
 @api_view(['PUT'])
-@permission_classes([IsAdminUser,IsAuthorOrReadOnly])
+@permission_classes([IsAdminUser])
 def updateCourse(request,id):
+    print(888888888, request.data, id)
     serializer = CourseSerializer(data=request.data, many=False)
     if serializer.is_valid():
         course = Course.objects.get(id=id)
         course.name = request.data['name']
         course.code = request.data['code']
-        course.semesters = Semester.objects.get(id=request.data['semesters'])
-        course.save()
-        return Response(serializer.data)
+        course.semesters = Semester.objects.get(id=request.data['semesters'][0])
+        if course.semesters:
+            course.semesters.set([request.data['semesters'][0]])
+            course.save()
+            return Response(serializer.data)
     return Response(serializer.errors)
 
 #delete course
@@ -178,7 +190,7 @@ def updateClass(request,id):
     serializer= ClassSerializer(data=request.data, many=False)
     if serializer.is_valid():
         class_ = Class.objects.get(id=id)
-        class_.semester = request.data['name']
+        class_.semester = request.data['semester']
         class_.number = request.data['number']
         class_.course = Course.objects.get(id=request.data['course'])
         class_.save()
@@ -309,19 +321,16 @@ def send_email(request, id):
         return HttpResponse("there is no this student")
     studentEmail = studentEnroll.enrolled_student.user.email
 
-    print(studentEmail,000000000)
-
     subject = "Your Grade is Available"
     message = f"Dear {studentEnroll.enrolled_student},\n\nYour grade for {studentEnroll.mark} is now available. "
     from_email = None  # Uses the default email in settings.py
 
     try:
-        send_mail(subject, message, from_email, ['huangb19@myunitec.ac.nz'])
-        # send_mail(subject, message, from_email, [studentEmail])
+        # send_mail(subject, message, from_email, ['huangb19@myunitec.ac.nz'])
+        send_mail(subject, message, from_email, [studentEmail])
         messages.success(request, f"Email sent to {studentEnroll}.")
     except Exception as e:
         messages.error(request, str(e))
-    print('dsadsadsa')
     return HttpResponse("Email has sent")
 
 
